@@ -1,0 +1,367 @@
+\documentclass{article}
+\usepackage{ctex}
+\ctexset{
+proofname = \heiti{证明}
+}
+\usepackage{amsmath,amsthm,amsfonts,amssymb}
+\usepackage{enumitem}
+\usepackage{esdiff}
+\usepackage{pifont}
+\newtheorem{definition}{定义}
+\newtheorem{thm}{定理}
+\newtheorem{pro}{命题}
+\newtheorem{cor}{推论}
+\def\P{\textbf{P}}
+\def\E{\mathbb{E}}
+\def\R{\mathbb{R}}
+\def\Z{\mathcal{Z}}
+\def\Var{\textrm{Var}}
+\def\Cov{\textrm{Cov}}
+\usepackage{mathtools}
+\DeclareMathOperator*\argmin{\arg\!\min}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\usepackage{bm}
+\begin{document}
+\title{信号估值理论}
+\author{赵丰}
+\maketitle
+\begin{enumerate}
+\item Bayes 估值
+
+代价函数$C(\hat{\theta},\theta)=C(\tilde{\theta})$,其中$\tilde{\theta}=\hat{\theta}-\theta$。平均风险
+$$
+\bar{R}=\int_{\mathcal{Z}}\int_{\Theta} C(\tilde{\theta}) d\theta dz
+$$
+记$\bar{R}(z)=\int_{\Theta} C(\tilde{\theta})p(\theta|z)d\theta$,称为“给定$z$时的条件风险”。
+则 $\bar{R}=\int_{\mathcal{Z}}\bar{R}(z)p(z)dz$。Bayes 估值等价于求解$\displaystyle\argmin_{\hat{\theta}} \bar{R}(z)$
+
+\item 常见的代价函数
+\begin{enumerate}[label=(\arabic*)]
+\item 平方误差代价：$C(\tilde{\theta})=\tilde{\theta}^2, \hat{\theta}_{\mathrm{ms}} =\int_{\Theta}\theta p(\theta|z)d\theta = \E[\theta|z], \hat{\theta}_{\mathrm{ms}}$ 被称为后验均值。
+
+\item 绝对误差代价: $C(\tilde{\theta})=\abs{\tilde{\theta}},\hat{\theta}_{\mathrm{abs}}$ 满足 $\int_{-\infty}^{\hat{\theta}_{\mathrm{abs}}} p(\theta|z)d\theta=\int_{\hat{\theta}_{\mathrm{abs}}}^{+\infty} p(\theta|z)d\theta$, $\hat{\theta}_{\mathrm{abs}}$被称为后验中值。
+
+\item 均匀误差代价：
+$$C(\tilde{\theta})=\begin{cases} 0, & \abs{\tilde{\theta}}\leq \frac{\Delta}{2}\\ 1, & \abs{\tilde{\theta}}>\frac{\Delta}{2}\end{cases}$$
+此时的条件风险为：
+$$ \bar{R}(z) = 1-\int_{\hat{\theta}-\frac{\Delta}{2}}^{\hat{\theta}+\frac{\Delta}{2}} p(\theta|z)d\theta $$
+
+当$\triangle$ 很小时，使得条件风险$\bar{R}(z)$最小有：$\hat{\theta}_{\mathrm{unf}}\approx \hat{\theta}_{\mathrm{map}}$，相当于后验概率密度的众数。 
+\item 对称下凸代价
+
+若代价函数满足
+\begin{enumerate}[label=(\alph*)]
+\item $C(\tilde{\theta})=C(-\tilde{\theta})$
+\item $C(b\theta_1+(1-b)\theta_2) \leq bC(\theta_1) + (1-b)C(\theta_2), \forall b\in(0,1)$
+\end{enumerate}
+并且后验密度函数满足
+\begin{enumerate}[resume,label=(\alph*)]
+\item $p(\theta|z)=p(2\hat{\theta}_{\textrm{ms}}-\theta|z)$
+\end{enumerate}
+则$\hat{\theta}_{\textrm{ms}}=\displaystyle\argmin_{\hat{\theta}} \bar{R}(z)$
+
+\begin{proof}
+\begin{align}
+    \bar{R}(z) & = \int_{\R} C(\theta-\hat{\theta})p(\theta|z)d\theta \label{eq:Rf1}\\
+                &  = \int_{\R} C(\theta-\hat{\theta})p(2\hat{\theta}_{\mathrm{ms}}-\theta|z)d\theta\nonumber\\
+                &  = \int_{\R} C(2\hat{\theta}_{\mathrm{ms}}-\theta-\hat{\theta})p(\theta|z)d\theta\nonumber\\
+                &  = \int_{\R} C(-2\hat{\theta}_{\mathrm{ms}}+\theta+\hat{\theta})p(\theta|z)d\theta\label{eq:Rf2}
+\end{align}
+对$\eqref{eq:Rf1}$ 和 $\eqref{eq:Rf2}$ 作平均得：
+\begin{align*}
+\bar{R}(z) & = \int_{\R} \frac{1}{2} \left(C(\theta-\hat{\theta})+C(-2\hat{\theta}_{\mathrm{ms}}+\theta+\hat{\theta})\right)p(\theta|z)d\theta \\
+           & \geq  \int_{\R} C(\theta-\hat{\theta}_{\mathrm{ms}}) p(\theta|z)d\theta
+\end{align*}
+上式右端和$\hat{\theta}$无关，当 $\theta-\hat{\theta} = -2\hat{\theta}_{\mathrm{ms}}+\theta+\hat{\theta} $ 时不等式成立，即 $\hat{\theta}=\hat{\theta}_{\mathrm{ms}}$
+\end{proof}
+\item 对称非下凸代价
+\end{enumerate}
+\item 常见估值方式
+\begin{enumerate}[label=(\alph*)]
+\item 极大极小估值：先验未知，寻找先验概率$p(\theta)$的最不利分布，再确定 Bayes 估值。
+\item 最大后验估值：代价函数未知，求解最大后验方程，
+\begin{equation}\label{eq:max_posterior_eq}
+\left[\frac{\partial \ln p(z|\theta)}{\partial \theta} + \frac{\partial p(\theta)}{\partial \theta} \right]{\bigg\rvert}_{\theta=\hat{\theta}_{\mathrm{map}}}=0
+\end{equation}
+\item 最大似然估值：先验和代价函数均未知 $\hat{\theta}_{\mathrm{ML}} = \displaystyle\max_{\theta} p(z|\theta)$
+\end{enumerate}
+\item 估计量的性质
+\begin{enumerate}[label=(\alph*)]
+\item 无偏估计量
+
+对于随机参量$\theta$,无偏性要求$\E[\hat{\theta}]=\E[\theta]$
+即$\int_{\Theta}\int_{\mathcal{Z}} \hat{\theta} p(z,\theta) dzd\theta = \int_{\Z}\hat{\theta} p(z)dz$
+\item 一致估计量
+
+基于$N$个观测值组成的观测矢量$\bm{z}_N$作估值：$\hat{\theta}(\bm{z}_N)$是参数$\theta$的一致估计量，当其满足
+$$
+\lim_{N\to \infty} \Pr(\abs{\hat{\theta}(\bm{z}_N)-\theta}<\epsilon)=1,\forall \epsilon>0
+$$
+\item 充分统计量：$\hat{\theta}(z)$是参数$\theta$的充分统计量，当$p(z|\theta)=p(\hat{\theta}(z)|\theta)h(z)$
+\item 有效(efficient) 统计量：
+具有最小方差的无偏估计量。
+\end{enumerate}
+\item C-R不等式
+\begin{table}[!ht]
+\begin{tabular}{ccc}
+\hline
+&非随机 & 随机 \\
+\hline
+&$\E[(\hat{\theta}-\theta)^2|\theta]\geq 1/\E\left[\left(\frac{\partial \ln p(z|\theta)}{\partial \theta}\right)^2|\theta\right]$ & $\E[(\hat{\theta}-\theta)^2]\geq 1/\E\left[\left(\frac{\partial \ln p(z,\theta)}{\partial \theta}\right)^2\right]$ \\
+等价形式&$\E\left[\left(\frac{\partial \ln p(z|\theta)}{\partial \theta}\right)^2|\theta\right]=-\E\left[\frac{\partial^2 \ln p(z|\theta)}{\partial \theta^2}\right]$ & $\E\left[\left(\frac{\partial \ln p(z,\theta)}{\partial \theta}\right)^2 \right]=-\E\left[\frac{\partial^2 \ln p(z,\theta)}{\partial \theta^2}\right]$ \\
+存在条件& $\frac{\partial p(z|\theta)}{\partial \theta} = (\hat{\theta}-\theta)\cdot K(\theta)$ & $\frac{\partial p(z,\theta)}{\partial \theta} = (\hat{\theta}-\theta)\cdot K$ \\
+有效估值存在 & 有效估值就是最大似然估值 & 有效估值就是$\hat{\theta}_{\mathrm{ms}}$或$\hat{\theta}_{\mathrm{map}}$ \\
+\hline
+\end{tabular}
+\caption{随机参量和非随机参量的对比}
+\end{table}
+
+在随机参量的情况下，有$\frac{\partial p(z,\theta)}{\partial \theta} = \frac{\partial p(\theta|z)}{\partial \theta}$。若有效估值存在，则后验概率密度
+满足方程$\frac{\partial p(z,\theta)}{\partial \theta} = (\hat{\theta}-\theta)\cdot K$，从而解出$p(\theta|z)=D\exp\left(-\frac{K}{2}(\theta-\hat{\theta})^2\right)$，即后验分布是高斯分布。反之，若后验分布是高斯分布，也满足有效估值存在性方程。所以对于随机参量，有效估值存在当且仅当后验分布是高斯分布。
+\item 白高斯信道中单参量信号的估值
+
+假设观测信号$z(t)=s(t,\theta)+n(t),0\leq t\leq T$
+\begin{enumerate}[label=(\arabic*)]
+\item $\theta$是未知的非随机参量时，求$\hat{\theta}_{\mathrm{ML}}$
+
+采用K-L展开求极限的方法，
+
+将$z(t)$ 在归一化的正交基函数$\{g_k(t)\}$上作K-L展开：$z(t)=\sum_{k=1}^{\infty} z_k g_k(t)$
+其中，$z_k = \int_0^T z(t)g_k(t)dt=\int_0^T [s(t,\theta)+n(t)]g_k(t)dt =s_k(\theta) + n_k$
+由于$n_k$为高斯分布，故 $z_k$亦为高斯分布，且有
+\begin{align*}
+\E[z_k] & = s_k(\theta) \\
+\Var[z_k] & = \Var[n_k] = \frac{N_0}{2} \\
+\Cov(z_k,z_l) & = \frac{N_0}{2} \delta_{kl}
+\end{align*}
+对观测矢量 $\bm{z}_N=(z_1,z_2,\dots,z_N)$ 而言，联合概率密度函数为：
+\footnotesize
+$$
+p(\bm{z}|\theta) = \prod_{k=1}^N \frac{1}{\sqrt{2\pi N_0/2}} \exp\left(-\frac{(z_k-s_k(\theta))^2}{N_0}\right)
+=\left(\frac{1}{\sqrt{\pi N_0}}\right)^N \exp\left(-\frac{1}{N_0}\sum_{k=1}^N (z_k-s_k(\theta))^2\right)
+$$
+\normalsize
+因此$\displaystyle\frac{\partial \ln p(\bm{z}_N|\theta)}{\partial \theta} = \frac{2}{N_0} \sum_{k=1}^N (z_k-s_k(\theta))\frac{\partial s_k(\theta)}{\partial \theta}$
+取极限得：
+$$
+\frac{\partial p(z(t)|\theta)}{\partial \theta} = \lim_{N\to \infty} \frac{\partial \ln p(\bm{z}|\theta)}{\partial \theta} =\frac{2}{N_0} \sum_{k=1}^{\infty} (z_k-s_k(\theta))\frac{\partial s_k(\theta)}{\partial \theta}
+$$
+又根据 $z_k$ 和 $s_k(\theta)$ 的K-L 展开式和公式 $\sum_{k=1}^{\infty} g_k(t)g_k(\tau)=\delta(t-\tau)$，我们有：
+\begin{align*}
+\sum_{k=1}^{\infty} z_k \frac{\partial s_k(\theta)}{\partial \theta} & = \sum_{k=1}^{\infty} \int_0^T \int_0^T z(t)g_k(t)\frac{\partial s(\tau,\theta)}{\partial \tau}g_k(\tau)dtd\tau \\
+&= \int_0^T z(t)\frac{\partial s(t,\theta)}{\partial \theta} dt
+\end{align*}
+同理$\displaystyle\sum_{k=1}^{\infty} s_k \frac{\partial s_k(\theta)}{\partial \theta}=\int_0^Ts(t)\frac{\partial s(t,\theta)}{\partial \theta} dt$
+，从而有：
+\begin{equation}\label{eq:ml_wn}
+\frac{\partial p(z(t)|\theta)}{\partial \theta} =  \frac{2}{N_0} \int_0^T(z(t)-s(t,\theta))\frac{\partial s(t,\theta)}{\partial \theta} dt
+\end{equation}
+由此可得最大似然方程：
+\begin{equation}\label{eq:mlw}
+\int_0^T(z(t)-s(t,\theta))\frac{\partial s(t,\theta)}{\partial \theta} dt{\bigg\rvert}_{\theta=\hat{\theta}_{\mathrm{ML}}} = 0
+\end{equation}
+对上式求导可得C-R界为 $\frac{N_0/2}{\int_0^T \left(\frac{\partial s(t,\theta)}{\partial \theta}\right)^2}$
+\item 信号幅度的估值
+
+此时，信号$s(t,A)=As(t)$，其中$A$ 是待估值的非随机参量。
+由\eqref{eq:ml_wn}式等于0得到：
+$$
+\hat{A}_{\mathrm{ML}}=\frac{\int_0^T z(t)s(t)dt}{\int_0^T s^2(t)dt}
+$$
+不妨令$\int_0^T s^2(t)dt=1$ （信号能量归一化），易验证$\hat{A}_{\mathrm{ML}}$具有性质：
+\begin{enumerate}[label=(\alph*)]
+\item 无偏性
+\item 方差为$\frac{N_0}{2}$,等于C-R界，因此是有效估值。
+\end{enumerate}
+\item 信号相位的估值
+
+此时，信号$s(t,\theta)=A\sin(\omega_0 t + \theta),0\leq t \leq T$，其中 $\theta$ 是待估值的非随机参量，而$A$和 $\omega_0$ 是已知常数，假定 $\omega T$是$\pi$的整数倍。由\eqref{eq:ml_wn}式等于0得到：
+$$
+\hat{\theta}_{\mathrm{ML}} = \arctan \left(\frac{\int_0^T z(t)\cos\omega_0 t dt }{\int_0^T z(t)\sin\omega_0 t dt}\right)
+$$
+当信噪比足够大时，$n(t)/A$是小量，将上式中$\arctan$在$\tan(\theta)$处Taylor展开，得到
+$$
+\hat{\theta}_{\mathrm{ML}} \approx \theta + \frac{2}{AT} \int_0^T \cos(\omega t + \theta)n(t)dt
+$$
+因此$\hat{\theta}_{\mathrm{ML}}$近似为均值为$\theta$（无偏），方差为 $\frac{N_0}{A^2T}$（有效）的高斯分布。
+
+\item 信号频率的估值
+
+此时，信号$s(t,\omega)=A\sin(\omega t + \theta),0\leq t \leq T$，其中 $\omega$ 是待估值的非随机参量，而$A$是已知常数，$\theta$是杂散参量。
+可以求出信号频率的最大似然估值为
+$$
+\hat{\omega}_{\mathrm{ML}} = \argmin_{\omega} \left(\int_0^T z(t)\cos\omega t dt \right)^2 + \left(\int_0^T z(t)\sin\omega t dt \right)^2
+$$
+\item $\theta$为已知先验概率的随机参量时，求$\hat{\theta}_{\mathrm{map}}$
+
+首先，我们通过最大后验方程\eqref{eq:max_posterior_eq}式来求其估值：
+第一项已经由前面\eqref{eq:ml_wn}求出，最大后验方程可重写为
+\begin{equation}\label{eq:known_prior}
+\left[\frac{2}{N_0}\int_0^T  (z(t)-s(t,\theta))\frac{\partial s(t,\theta)}{\partial \theta} dt + \frac{\partial p(\theta)}{\partial \theta} \right]{\bigg\rvert}_{\theta=\hat{\theta}_{\mathrm{map}}}=0
+\end{equation}
+% 所以估值的C-R界限为：
+%\begin{equation}
+%1/\E\left[\frac{\partial^2 \ln p(z,\theta)}{\partial \theta^2}\right] = \left(\frac{2}{N_0}\int_0^T \left(\frac{\partial s(t,\theta)}{\partial \theta}\right)^2dt-\frac{\partial^2 \ln p(\theta)}{\partial \theta^2}\right)^{-1}
+%\end{equation}
+
+在（2）中，若$A \sim N(0,\sigma_A^2)$，根据\eqref{eq:known_prior} 可得信号的幅度估值为 
+$$
+\hat{A}_{\mathrm{map}} = \frac{\int_0^T z(t)s(t)dt}{\int_0^T s^2(t)dt+\frac{N_0}{2\sigma_A^2}}
+$$
+$\hat{A}_{\mathrm{ML}}$具有性质：
+\begin{enumerate}[label=(\alph*)]
+\item 无偏性：$\E[A]=0,\E[\hat{A}_{\mathrm{map}}]=0$
+\item 利用随机参数的C-R界的公式，$\E[(\hat{A}_{\mathrm{map}}-A)^2]$为$1/[\frac{2}{N_0}\int_0^T s^2(t)dt+\frac{1}{\sigma_A^2}]$ 等于C-R界，因此是有效估值。
+\end{enumerate}
+\end{enumerate}
+\item 色高斯信道非随机参量的估值
+
+观测方程 $z(t) = s(t,\theta) + n(t),0\leq t \leq T$, 其中 $n(t)$ 为色高斯平稳噪声，其相关函数记为 $R_n(t-\tau)$。
+沿用 信号检测理论中的K-L 展开法，$z(t)=\sum_{k=1}^{\infty} z_k g_k(t)$, 系数$\{z_k\}$ 互不相关，且$z_k\sim N(s_k,\lambda_k)$。
+似然函数为：
+$$
+p(z(t)) = \prod_{k=1}^{\infty} \frac{1}{\sqrt{2\pi \lambda_k}} \exp\left(-\frac{(z_k-s_k)^2}{2\lambda_k}\right)
+$$
+取其对数形式，有：
+\begin{equation}\label{eq:midpz}
+\ln p(z(t)) = C - \sum_{k=1}^{\infty} \frac{z_k^2}{2\lambda_k} + \sum_{k=1}^{\infty} \frac{z_k s_k}{\lambda_k} - \sum_{k=1}^{\infty}\frac{s_k^2}{2\lambda_k}
+\end{equation}
+其中$C$为与信号参量不相关的部分项。而在信号估计理论一节已经推导出
+\begin{subequations}
+\begin{align}
+\label{eq:zs} \sum_{k=1}^{\infty} \frac{z_k s_k}{\lambda_k} & = \int_0^T z(t)h(t)dt \\
+\label{eq:ss} \sum_{k=1}^{\infty}\frac{s_k^2}{2\lambda_k} & = \frac{1}{2} \int_0^T s(t,\theta)h(t)dt
+\end{align}
+\end{subequations}
+其中
+$h(t)=\displaystyle\sum_{k=1}^{\infty}\frac{s_k g_k(t)}{\lambda_k}$，为将$h(t)$表示成积分的形式，引入反核函数
+$R_n^{-1}(t-\tau)$，相对于$R_n(t-\tau)$，我们有
+\begin{subequations}
+\begin{align}
+\label{eq:idn} R_n(t-\tau) = \sum_{k=1}^{\infty} \lambda_k g_k(t)g_k(\tau) \\
+\label{eq:inv} R_n^{-1}(t-\tau) = \sum_{k=1}^{\infty} \frac{1}{\lambda_k} g_k(t)g_k(\tau)
+\end{align}
+\end{subequations}
+满足$\int_0^T R_n^{-1}(t-\tau)R_n(\tau-\mu)d\tau = \delta(t-u)$
+针对\eqref{eq:inv},两边乘以$s(\tau,\theta)$对$\tau$积分得：$h(t)=\int_0^T s(\tau,\theta)R_n^{-1}(t-\tau)d\tau$
+利用反核函数的表达式：
+\begin{align*}
+\sum_{k=1}^{\infty} \frac{z_k^2}{2\lambda_k} & = {1\over 2} \int_0^T\int_0^T z(t)z(\tau)\sum_{k=1}^{\infty} \frac{g_k(t)g_k(\tau)}{\lambda_k} dt d\tau \\
+& = {1\over 2} \int_0^T\int_0^T z(t)z(\tau)R_n^{-1}(t,\tau)dtd\tau
+\end{align*}
+因此\eqref{eq:midpz}化为：
+\begin{align*}
+\ln p(z(t)) & = C-{1\over 2}\int_0^T\int_0^T [z(t)z(\tau)-2z(t)s(\tau,\theta)+s(t,\theta)s(\tau,\theta)]R_n^{-1}(t-\tau)dtd\tau \\
+            & = C-{1 \over 2}\int_0^T \int_0^T [z(t)-s(t,\theta)]R_n^{-1}(t-\tau)[z(\tau)-s(\tau,\theta)]dtd\tau  \\
+\diffp{\ln p(z(t)|\theta)}{\theta} & = \int_0^T\int_0^T [z(t)-s(t,\theta)]R_n^{-1}(t-\tau)\diffp{s(\tau,\theta)}{\theta}dtd\tau \\
+    & = \int_0^T (z(t)-s(t,\theta))\diffp{h(t,\theta)}{\theta}dt
+\end{align*}
+利用极大似然法可以写出似然方程为
+\begin{equation}\label{eq:mlc}
+\int_0^T (z(t)-s(t,\theta))\diffp{h(t,\theta)}{\theta}dt{\bigg\rvert}_{\theta=\hat{\theta}_{\mathrm{ML}}}=0
+\end{equation}
+对比\eqref{eq:mlw}式和\eqref{eq:mlc}式可以发现，色高斯信道的ML估计中求偏导用$h(t,\theta)$ 代替了$s(t,\theta)$。当$\lambda_k=\frac{N_0}{2}$时,
+$R_n(t-\tau)={N_0 \over 2}\delta(t-\tau),R_n^{-1}(t-\tau)={2 \over N_0}\delta(t-\tau),h(t,\theta) = {2 \over N_0}s(t,\theta)$
+
+另外不难求出估值的C-R界为 $1/\int_0^T \diffp{s(t,\theta)}{\theta}\diffp{h(t,\theta)}{\theta}dt$
+
+例：信号振幅估计$s(t,A)=As(t)$，由\eqref{eq:mlc}式解得：
+$$
+\hat{A}_{\mathrm{ML}} = \frac{\int_0^T z(t)\tilde{h}(t)dt}{\int_0^T s(t)\tilde{h}(t)dt}
+$$
+其中$\tilde{h}(t) = \int_0^T s(\tau)R_n^{-1}(t-\tau)d\tau$
+\item 多参量估值：可由单参数估值形式推广
+\item 线性最小均方估值
+
+放宽对信号已知知识的要求，假设
+\begin{enumerate}[label=(\alph*)]
+\item 对信号的统计知识只知道信号参量$\theta$和观测值$z$的一、二阶矩：$\E[\bm{\theta}],\E[\bm{z}],\Var[\bm{\theta}],\Var[\bm{z}],\Cov[\bm{\theta},\bm{z}]$
+\item 估值是观测值的线性组合$\hat{\bm{\theta}} = \bm{A} \bm{z}+\bm{b}$
+\end{enumerate}
+MSE 估值准则为：$\min_{\bm{A},\bm{b}}\E[(\hat{\bm{\theta}}-\bm{\theta})^T(\hat{\bm{\theta}}-\bm{\theta})]$,
+其中$\E$是关于$\bm{\theta},\bm{z}$联合分布的期望。
+%定义两个随机变量正交如果它们乘积的期望值为0。
+
+首先说明最小均方估值是无偏的，即$\E[\hat{\bm{\theta}}-\bm{\theta}]=\bm{0}$，反设$ \E[\hat{\bm{\theta}}-\bm{\theta}]=\bm{b}\neq \bm{0}$
+构造$\hat{\bm{\theta}}'=\hat{\bm{\theta}}-\bm{b}$,有：
+\begin{align*}
+\E[(\hat{\bm{\theta}}'-\bm{\theta})^T(\hat{\bm{\theta}}'-\bm{\theta})] & = \E[(\hat{\bm{\theta}}-\bm{\theta})^T(\hat{\bm{\theta}}-\bm{\theta})]-\bm{b}^T\bm{b}\\
+& < \E[(\hat{\bm{\theta}}-\bm{\theta})^T(\hat{\bm{\theta}}-\bm{\theta})]
+\end{align*}
+因此$b=\E[\bm{\theta}]-\bm{A}\E[\bm{z}]$
+其次说明最小均方估值的误差与观测$\bm{z}$正交，反设$\E[(\hat{\bm{\theta}}_{\textrm{LMS}}-\bm{\theta})\bm{z}^T]=\bm{\Lambda_{ez}}\neq \bm{0}_{M\times N}$，其中$\bm{\theta}$是$M$维向量，$\bm{z}$ 是$N$维向量。构造$\hat{\bm{\theta}}'=\hat{\bm{\theta}}-\bm{\Lambda_{ez}}\Var^{-1}[\bm{z}](\bm{z}-\E[\bm{z}])$,（不妨设$M=1$，否则分别考虑$\bm{\theta}$的各分量）有：
+\begin{align*}
+\E[(\hat{\bm{\theta}}'-\bm{\theta})^T(\hat{\bm{\theta}}'-\bm{\theta})] & = \E[(\hat{\bm{\theta}}-\bm{\theta})^T(\hat{\bm{\theta}}-\bm{\theta})]-\bm{\Lambda_{ez}}\Var^{-1}[y]\bm{\Lambda_{ez}}\\
+& < \E[(\hat{\bm{\theta}}-\bm{\theta})^T(\hat{\bm{\theta}}-\bm{\theta})]
+\end{align*}
+因此$\hat{\bm{\theta}}_{\textrm{LMS}}-\bm{\theta}$与$\bm{z}-\E[\bm{z}]$ 正交，已有$\hat{\bm{\theta}}_{\textrm{LMS}}=\bm{A}(\bm{z}-\E[\bm{z}])+\E[\bm{\theta}]$
+。由$\E[(\hat{\bm{\theta}}_{\textrm{LMS}}-\bm{\theta})(\bm{z}-\E[\bm{z}])^T]=\bm{0}$得$\bm{A}=\Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}]$
+因此
+\begin{equation}
+\hat{\bm{\theta}}_{\textrm{LMS}}=\Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}](\bm{z}-\E[\bm{z}])+\E[\bm{\theta}]
+\end{equation}
+线性最小均方估值的误差矩阵为：
+\begin{align*}
+\Var[\bm{\theta}_{\textrm{LMS}}-\bm{\theta}] & = \E[(\bm{\theta}_{\textrm{LMS}}-\bm{\theta})(\bm{\theta}_{\textrm{LMS}}-\bm{\theta})^T] \\
+& = \Var[\bm{\theta}] - \Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}]\Cov[\bm{z},\bm{\theta}]
+\end{align*}
+\item 最小二乘估值：仅有观测，无先验
+
+假定观测模型为：
+\begin{equation}
+\bm{z} = \bm{C} \bm{\theta} + \bm{n}
+\end{equation}
+其中$\bm{n}$ 是观测噪声，$\bm{\theta}$是$M$维向量，$\bm{z}$ 是$N$维向量，$N>M$。最小二乘估值准则为：
+\begin{equation}
+\min_{\hat{\bm{\theta}}=\hat{\bm{\theta}}_{\mathrm{LS}} } (\bm{z} - \bm{C} \bm{\theta})^T(\bm{z} - \bm{C} \bm{\theta})
+\end{equation}
+解得
+\begin{subequations}
+\begin{align}
+\hat{\bm{\theta}}_{\mathrm{LS}} & = (\bm{C}^T\bm{C})^{-1} \bm{C}^T \bm{z} \\
+& = \bm{\theta} + (\bm{C}^T\bm{C})^{-1} \bm{C}^T \bm{n}
+\end{align}
+因为$\E[\bm{n}]=\bm{0}$，所以最小二乘估值对给定的观测模型是无偏估计。
+\end{subequations}
+最小二乘估值的方差矩阵为
+$$
+\Var[\bm{\theta}_{\textrm{LS}}-\bm{\theta}] = (\bm{C}^T\bm{C})^{-1} \bm{C}^T \Var[\bm{n}] \bm{C}(\bm{C}^T\bm{C})^{-1} 
+$$
+\item 加权最小二乘估值(LSW)
+对观测模型$\bm{z} = \bm{C} \bm{\theta} + \bm{n}$引入新的目标函数$ (\bm{z} - \bm{C} \bm{\theta})^T\bm{W}(\bm{z} - \bm{C} \bm{\theta})$，其中$\bm{W}$
+是对称正定的加权矩阵，加权最小二乘估值准则可描述为：
+$$
+\min_{\hat{\bm{\theta}}=\hat{\bm{\theta}}_{\mathrm{LSW}} } (\bm{z} - \bm{C} \bm{\theta})^T\bm{W}(\bm{z} - \bm{C} \bm{\theta})
+$$
+从而得到加权最小二乘估值为：$\bm{\theta}_{\mathrm{LSW}} =  (\bm{C}^T\bm{W}\bm{C})^{-1} \bm{C}^T \bm{W}\bm{z}$
+估值的方差矩阵为
+$$
+\Var[\bm{\theta}_{\textrm{LSW}}-\bm{\theta}] = (\bm{C}^T\bm{W}\bm{C})^{-1} \bm{C}^T\bm{W} \Var[\bm{n}] \bm{W}\bm{C}(\bm{C}^T\bm{W}\bm{C})^{-1} 
+$$
+下面求方差矩阵的下限：
+
+设$\Var[\bm{n}]=\bm{H}^T\bm{H},\bm{B}=\bm{H}\bm{W}\bm{C}(\bm{C}^T\bm{W}\bm{C})^{-1} $，则$\Var[\bm{\theta}_{\textrm{LSW}}-\bm{\theta}]=\bm{B}^T\bm{B}$，取$\bm{A}=\bm{C}^TH^{-1}$，则$\bm{A}\bm{B}=\bm{I}$
+
+使用矩阵不等式
+\begin{equation}\label{eq:BBAA}
+ \bm{B}^T\bm{B}\succcurlyeq (\bm{A}\bm{B})^T (\bm{A}\bm{A}^T)^{-1} (\bm{A}\bm{B})
+\end{equation}
+% \bm{A}\bm{A}^T 可逆要求 A 是扁的，就是指row(A)<column(A)
+\begin{proof}
+设$\bm{x}$是与$\bm{B}$的列数相同的列向量。
+只需证明$ \bm{x}^T\bm{B}^T\bm{B}\bm{x}\geq \bm{x}^T(\bm{A}\bm{B})^T (\bm{A}\bm{A}^T)^{-1} (\bm{A}\bm{B})\bm{x}$，
+则只需证明$\bm{I}-\bm{A}^T(\bm{A}\bm{A}^T)^{-1}\bm{A}$半正定。设$\bm{y}$是$\bm{A}^T(\bm{A}\bm{A}^T)^{-1}\bm{A}$的特征向量，特征值为$\sigma$，
+则$\bm{A}^T(\bm{A}\bm{A}^T)^{-1}\bm{A}\bm{y}=\sigma\bm{y}$，等式两端左乘以$\bm{A}\Rightarrow \bm{A}\bm{y}=\sigma\bm{A}\bm{y}$，若$\bm{A}
+\bm{y}\neq \bm{0} \Rightarrow \sigma=1$,否则$\sigma=0$，因此$\bm{A}^T(\bm{A}\bm{A}^T)^{-1}\bm{A}$的特征值非0则1，半正定的结论成立。
+\end{proof}
+对于给定的下限问题，由不等式\eqref{eq:BBAA}直接得到下限为$(\bm{A}\bm{A}^T)^{-1}$，即
+$$
+\Var[\bm{\theta}_{\textrm{LSW}}-\bm{\theta}] \succcurlyeq (\bm{C}^T \Var[\bm{n}]\bm{C})^{-1}
+$$
+直接验证可得$\bm{W}=\Var^{-1}[\bm{n}]$ 时取等号，此时称$\bm{W}$为最佳加权矩阵。
+
+\end{enumerate}
+
+\end{document}
+
+
