@@ -1,0 +1,128 @@
+\documentclass{article}
+\usepackage{ctex}
+\ctexset{
+  proofname = \heiti{证明}
+}
+\usepackage{amsmath,esint,amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{mathtools}
+\usepackage{esdiff}
+\DeclareMathOperator*{\rgmax}{argmax}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\usepackage[thehwcnt = 2]{iidef}
+\thecourseinstitute{清华大学深圳研究生院}
+\thecoursename{统计信号处理}
+\theterm{2017年春季学期}
+\hwname{作业}
+\slname{\heiti{解}}
+\DeclareMathOperator\sign{\mathrm{sgn}}
+\begin{document}
+\courseheader
+\name{赵丰}
+\begin{enumerate}
+\item 设一次观测值为 $ z = ab +n $，其中 $ a, b $ 和 $n $ 是均值为零， 方差分别为 $ \sigma_a^2, \sigma_b^2 $ 
+和  $ \sigma_n^2 $ 且相互统计独立的高斯随机变量。 若对 $ a $ 和 $ b $ 同时进行估值， 试求 $ a $ 和 $ b $ 
+的最大后验估值。
+\begin{solution}
+$p(a, b | z) \propto p(a)p(b) p(z | a,b) $。 为极大化 $ p(a,b | z)$，只需极小化
+$ L(a, b)= { ( z - ab)^2 \over \sigma_n^2 } + { a^2 \over \sigma_a^2} + { b^2 \over \sigma_b^2} $
+分别对 $a, b $ 求偏导数得：
+\begin{align*}
+{1 \over 2}\diffp{L(a, b)}{a}  & = { a \over \sigma_a^2 } - { b(z-ab) \over \sigma_n^2 } = 0 \\
+{1 \over 2}\diffp{L(a, b)}{b} & = { b \over \sigma_b^2} - {a(z-ab) \over \sigma_n^2} = 0
+\end{align*}
+由 $ab$乘积的对称性可知无法区分$a$和 $b$的符号，因此我们不妨设 $ a>0$。
+两等式联立消元得 $ { a \over \sigma_a } = \pm{ b \over \sigma_b }$。 若 $ b>0$，解得$a=b=0$或
+\begin{equation}\label{eq:case1}
+{ a^* \over \sigma_a } = { b^* \over \sigma_b } = {\sqrt{\sigma_a \sigma_b z - \sigma_n^2} \over \sigma_a \sigma_b}
+\end{equation}
+若 $ b<0 $， 解得$a=b=0$或
+\begin{equation}\label{eq:case2}
+{ a^* \over \sigma_a } = { -b^* \over \sigma_b } = {\sqrt{-\sigma_a \sigma_b z - \sigma_n^2} \over \sigma_a \sigma_b}
+\end{equation}
+并且$L(a,b)$ 的Hessian 矩阵满足 
+$$
+{1 \over 2} H(a,b) = \begin{bmatrix} {1 \over \sigma_a^2 } + { b^2 \over \sigma_n^2 } & {2ab-z \over \sigma_n^2} 
+\\ {2ab-z \over \sigma_n^2} & {1 \over \sigma_b^2} + {a^2 \over \sigma_n^2} \end{bmatrix}
+$$
+在$(0,0)$处正定。
+代入~\eqref{eq:case1} 或 ~\eqref{eq:case2} 式，可求出Hessian 矩阵的行列式为：
+\begin{equation}
+H(a^*,b^*) = {16 \over \sigma^2_a\sigma^2_b\sigma^2_n}(\sigma_a\sigma_b\abs{z} - \sigma_n^2)>0
+\end{equation}
+因此$(0, 0)$ 和 $(a^*, b^*)$ 均为极小值点。
+另一方面，$L(0, 0) = { z^2 \over \sigma_n^2}$，
+代入~\eqref{eq:case1} 或~\eqref{eq:case2}式得 $L(a^*, b^*) = {2 \abs{z} \over \sigma_a \sigma_b} - {\sigma_n^2 \over \sigma_a^2 \sigma_b^2}$。~\eqref{eq:case1} 或~\eqref{eq:case2}式成立的前提条件是 $ {\abs{z} \over \sigma_n } > {\sigma_n \over \sigma_a \sigma_b} $。 由$ ({\abs{z} \over \sigma_n } - {\sigma_n \over \sigma_a \sigma_b} )^2> 0$ 可得 $L(0, 0) > L(a^*,b^*) $。
+
+因此当 $\abs{z} \leq {\sigma_n^2 \over \sigma_a \sigma_b } $时， $ a $ 和 $ b $ 的最大后验估值均为0；当
+$\abs{z} > {\sigma_n^2 \over \sigma_a \sigma_b } $时，$a$和 $b$的最大后验估值为：
+$$
+{ a^* \over \sigma_a } = { \sign(z b^*) \over \sigma_b } = {\sqrt{\sigma_a \sigma_b \abs{z} - \sigma_n^2} \over \sigma_a \sigma_b}
+$$
+
+
+\end{solution}
+\item 设一物体作自由下落，在 $ t $ 秒内下降距离 $ s(t) = { 1 \over 2} g t^2 (m)$。现有一台有噪声的仪器进行观测，
+以估计重力加速度 $ g (m/s^2) $。其观测模型为：
+$$
+ z_i = \frac{ i^2}{2} g + n_i , i = 1, 2, \dots
+$$
+已知 $ \E[g] = g_0 (m/s^2), \Var[g] = 1 (m^2/s^4), \E[n_i] =0, \E[n_i n_j] = \left({1 \over 2}\right)^{\abs{j-i}}, \E[g n_i]=0 $
+\begin{enumerate}
+\item 取一次采样 $ z_1 = { 1 \over 2} g + n_1 $, 求重力加速度 $ g $ 的线性最小均方估计。
+\item 取两次采样 $ z_1 = { 1 \over 2} g + n_1, z_2 = 2g + n_2 $，求重力加速度 $ g $ 的线性最小均方估计。
+\item 比较(a) 和 (b) 两次估计的质量。
+\end{enumerate}
+\begin{solution}
+\begin{enumerate}
+\item $ \E[z_1] = { 1 \over 2} g_0, \E[ g ] = g_0, \Cov[z_1, g] = { 1 \over 2}, \Var[z_1] = { 5 \over 4 }  $
+根据公式：$$ \hat{\bm{\theta}}_{\textrm{LMS}}=\Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}](\bm{z}-\E[\bm{z}])+\E[\bm{\theta}] $$
+可得 $ \hat{g} (z) = { 2 \over 5 } ( z - {1 \over 2} g_0 ) + g_0 $
+\item 设 $ \bm{z} = [z_1, z_2]^T, \Cov[g,\bm{z}] = [{ 1 \over 2}, 2], \Var[\bm{z}] = \begin{bmatrix} { 5 \over 4} & { 3 \over 2} \\ {3 \over 2} & 5
+\end{bmatrix} \Rightarrow \hat{g} = -{ 1 \over 8} ( z_1 - { 1 \over 2} g ) + {7 \over 16} ( z_2 - 2 g) + g_0$
+\item 根据公式 $\Var[\bm{\theta}_{\textrm{LMS}}-\bm{\theta}]  = \Var[\bm{\theta}] - \Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}]\Cov[\bm{z},\bm{\theta}]$，分别计算可得 (a) 中估计的均方误差为 $ { 4 \over 5 } $，(b) 中估计的均方误差为 $ { 3 \over 16 } $。因此 (b) 的平均误差比
+(a) 的小。
+\end{enumerate}
+\end{solution}
+\item 设有一阶动态系统模型。状态方程为 $ \dot x(t) = -x(t) + w(t) $ ，观测方程为  $ z(t) = x(t) + v(t) $。 其中 $ w(t) $  和 $ v(t) $ 是零均值、互不相关的白噪声过程。
+假设 $ \Cov[w(t), w(\tau)] = 2 \alpha \delta(t - \tau), \Cov[v(t), v(\tau) ] = \alpha \delta(t - \tau) $，这里 $ \alpha $ 为常数。
+试求:
+\begin{enumerate}
+\item 达到稳态时的 Kalman 滤波器。
+\item 信号 $x(t) $ 的物理可实现的Wiener 滤波器。
+\item 比较和分析前面所得的结果。
+\end{enumerate}
+\begin{solution}\mbox{}
+\begin{enumerate}
+\item 由于求稳态解，令 $ \dot P(t) = 0 $ 。关于误差方差的 Ricatti 方程为 $ P^2 + 2 \alpha P = 2 \alpha^2 $。舍去负根有 
+$ P = (\sqrt{3} - 1) \alpha$。 从而滤波增益为 $ K = \sqrt{3} - 1 $。进而得到状态估计方程为：
+$\diff{\hat{x}(t)}{t} + \sqrt{3} \hat{x}(t) = (\sqrt{3} - 1) z(t)$，滤波器传递函数为  $H(s) = { \sqrt{3} - 1 \over \sqrt{3} + s } $。
+\item 由系统的状态方程可得形成滤波器为 $ H(s) = { 1 \over 1 + s} $。信号 $x(t)$ 的 PSD 为 $\Phi_x(s) =  H(s) H(-s) \Phi_w(s) = { 2\alpha \over 1 - s^2 }$。噪声 $ \Phi_v(s) = \alpha $。根据物理可实现的 Wiener 滤波器的公式，
+$ H(s) = \frac{1}{\Phi_z^+(s)}\left[\frac{\Phi_{xz}(s)}{\Phi_z^{-}(s)}\right]^{t+}$ 可求出 $ H(s) ={  \sqrt{3} - 1 \over \sqrt{3} + s }$， 进而求出滤波器的冲击响应为  : $ h(t) = (\sqrt{3} - 1) e^{-\sqrt{3} t} u(t) $。
+\item 稳态时的 Kalman 滤波器与物理可实现的Wiener 滤波器形式相同。
+\end{enumerate}
+\end{solution}
+\item 试证明：
+对于 Wilcoxon 检验： $ \diffp{\E[T^+]}{\theta} \big\vert_{\theta = 0} = n f_0(0) + n(n-1) I $。
+其中 $ I = \int_{-\infty}^{+\infty} f_0^2(\sigma) d\sigma $
+\begin{proof}
+设 $ f(\sigma)$ 关于$y$轴对称。
+可以求出 $ T^+  = \sum_{ i = 1 }^n \sum_{ j = 1}^i u(X_i + X_j) $
+
+当 $ i \neq j $时，  $ \E[u(X_i + X_j) ] = 1 - \int_{ -\infty }^{ +\infty} f_0(\sigma - \theta) F_0( - \sigma - \theta ) d\sigma $。
+进一步，
+\begin{align*}
+\diffp{\E[u(X_i + X_j) ] }{\theta} & = \int_{ -\infty }^{ +\infty} \diffp{f_0(\sigma - \theta)}{\sigma} F_0( - \sigma - \theta ) d\sigma 
++ \int_{ -\infty }^{ +\infty} f_0(\sigma - \theta) f_0( - \sigma - \theta ) d\sigma \\
+& = 2\int_{ -\infty }^{ +\infty} f_0(\sigma - \theta) f_0( - \sigma - \theta ) d\sigma  
+\end{align*}
+从而有 $ \diffp{\E[u(X_i + X_j) ] }{\theta}\big\vert_{\theta = 0} = 2I $。
+
+当 $ i = j $ 时， $ \E[u(X_i + X_j)] = 1 - F_0(-\theta) \Rightarrow  \diffp{\E[u(X_i + X_j) ] }{\theta}\big\vert_{\theta = 0} = f_0(0) $。
+因此，$ \diffp{\E[T^+]}{\theta} \big\vert_{\theta = 0} = n f_0(0) + n(n-1) I $。
+\end{proof}
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,354 @@
+\documentclass{ctexart}
+\ctexset{
+proofname = \heiti{证明}
+}
+\usepackage{amsmath,amsthm,amsfonts,amssymb}
+\usepackage{enumitem}
+\usepackage{esdiff}
+\usepackage{pifont}
+\numberwithin{equation}{section}
+\newtheorem{definition}{定义}
+\newtheorem{thm}{定理}
+\newtheorem{pro}{命题}
+\newtheorem{cor}{推论}
+\newtheorem{example}{例}
+\newtheorem*{solution}{解}
+\def\P{\textbf{P}}
+\def\E{\mathbb{E}}
+\def\Tr{\mathrm{Tr}}
+\def\R{\mathbb{R}}
+\def\Z{\mathcal{Z}}
+\def\Var{\textrm{Var}}
+\def\Cov{\textrm{Cov}}
+\usepackage{mathtools}
+\DeclareMathOperator*\argmin{\arg\!\min}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\DeclareMathOperator\sgn{sgn}
+\usepackage{bm}
+\begin{document}
+\title{非参数估计理论}
+\author{赵丰}
+\maketitle
+\section{符号检测}
+考虑$n$次观测， $X_1, X_2, \dots, X_n$， 独立同分布但概率密度函数$p(x)$未知。 针对假设检验问题
+\begin{align*}
+H_0 &: \mathtt{median} = 0\\
+H_1 & : \mathtt{median} >0 
+\end{align*}
+设在 $H_1$ 假设下 $ p = P(X \geq 0)$。
+针对每个观测$ X_i $我们取它的符号 $ u(X_i) $，在$H_0$ 假设下 $u(X) \sim Bern({1 \over 2}) $, 在$H_1$ 假设下 $u(X) \sim Bern(p) $
+因此$u(X_1), u(X_2), \dots, u(X_n) $ 为 二项分布，根据 
+似然比的方法构造关于观测变量符号的最佳统计量$T$。
+$$
+\lambda(X) = \prod_{ i = 1}^N { f( u(x_i) | H_1) \over f( u(x_i) | H_0)}
+$$
+当 $ x_i > 0 $ 时，
+\begin{align*}
+{ f( u(x_i) | H_1) \over f( u(x_i) | H_0) } = 2 p^{u(x_i)} (1-p)^{u(x_i)}
+\end{align*}
+从而 
+$$ 
+\lambda(X) = 2^n p^{\sum_{i=1}^n u(x_i)} (1-p)^{ n - \sum_{i=1}^n u(x_i) } 
+$$
+由 $ \lambda(X) \gtrless \lambda $ 以及 $ p > { 1 \over 2} $ 的性质可以得到
+最佳统计量$T$ 为
+$$
+T = \sum_{ i = 1 }^n u(X_i) \mathop{\gtrless}_{H_0}^{H_1} c
+$$
+$T$ 服从二项分布， $
+\begin{cases} T | H_0 & \sim B(n, { 1 \over 2 } ) \\
+T | H_1 & \sim B(n, p) 
+\end{cases}
+$， 虚警概率为 
+$$
+P_F = \sum_{ k = c+1}^n \binom{n}{k} \left({1 \over 2}\right)^n 
+$$
+令$P_F \leq \alpha $ 求得最大的$c$， 由此求出检测概率为：
+$$
+P_D = \sum_{ k = c+1}^n \binom{n}{k} p^k (1-p)^{n-k}
+$$
+如果做关于中位数是否是 $M_0 $ 的假设检验， 只需将符号检测应用到$Z_i = X_i - M$ 上即可。
+\section{Wilcoxon 检测}
+对于观测 $X_1, X_2, \dots, X_n (i.i.d.)\sim X$，
+\begin{align}
+H_0 & : \mathtt{median}(X)  = M_0 \nonumber \\
+\label{eq:H0H1} H_1 & : \mathtt{median}(X) > M_0
+\end{align}
+利用观测的绝对值大小信息 $\abs{Z_i}$ ， 
+将 $\abs{Z_i} $ 从小到大排序，
+记 $ r(\abs{Z_i}) $ 为序号（$ r(\abs{Z_i})  = 1 $ 表示 $\abs{Z_i} $ 是最小的。）
+有 $ \sum_{ i = 1}^n r(\abs{Z_i}) = n(n+1)/2 $
+记统计量 $ T^+ = \sum_{ i = 1}^n u(Z_i) r(\abs{Z_i}) $
+设 $T_i $ 为 Bernoulli 随机变量，取值为$\{0, 1\}$， $P( T_i = 1 )$ 是$\{ \abs{Z_i} \} $中 第 $i$ 小的数取值为1的概率。
+则
+\begin{equation}
+ T^+ = \sum_{ i = 1 }^n i T_i
+\end{equation}
+可以证明 在 $H_0 $ 的假设下，$T_1, T_2, \dots, T_n$ 是相互独立的， 且服从 $Bern({1\over 2})$。
+因此在 $H_0 $ 的假设下
+\begin{align}
+\E[T^+] & = \sum_{i=1}^n i \E[T_i] = {1 \over 2}\sum_{i=1}^n i   = { n(n+1) \over 4 } \\
+\label{eq:VarT}\Var[T^+] & = \sum_{i=1}^n i^2 \Var[T_i] = {1 \over 4}\sum_{i=1}^n i^2   = { n(n+1)(2n+1) \over 24}  
+\end{align}
+于是关于 \eqref{eq:H0H1} 提出的假设检验问题可以用如下的判决：
+$$
+T^+ - { n(n+1) \over 4} \mathop{\gtreqless}^{H_1}_{H_0} k
+$$
+其中$k$的取值是满足 $P_F \leq \alpha $ 且尽量小。
+即 $P_F = \Pr( T^+ - { n(n+1) \over 4} \geq k | H_0 ) \leq \alpha $，
+当$n$较大时，$T^+$ 可近似为正态分布，于是$P_F = 1 - \Phi(\frac{k}{\sqrt{\Var(T^+ | H_0)}})$。
+当$ n = 20$， 使得 $ P_F \leq 0.001 \Rightarrow k \geq 83$。
+
+\section{渐近相对效率(ARE)}
+
+
+下面考虑弱信号检测问题，即随样本量$n$的增大， 待估的参数 $ \theta_n \to \theta_0$。
+
+对下面的假设检验问题：
+\begin{align}
+H_0 & : \theta = \theta_0 \nonumber \\
+H_1 & : \theta  > \theta_0
+\end{align}
+
+若在 $H_1$ 假设下求出$\E_{\theta}[T]$，其对$\theta $的导数在 $\theta = \theta_0$ 处取值, 而 $\Var[T]$在 $H_0$
+的假设下求出，那么称$e(T)$为统计量关于假设检验问题的效验(efficacy).
+即
+\begin{equation}
+   e(T) = { \left[ \diff{\E_{\theta}[T]}{\theta}\Big\vert_{\theta_0}\right]^2\over \Var[T]}
+\end{equation}
+若有两个检验统计量 $T_n$ 和 $T_n^*$ 其中 $n$表示样本个数，在满足一定的正则化条件的
+情况下 有：
+\begin{equation}
+\mathrm{ARE} = \lim_{n\to\infty} {e(T_n) \over e(T_n^*)}
+\end{equation}
+下面求解 符号检测对线性检测的ARE:
+考虑$f_0(x)$是关于$y$ 轴对称 的概率密度函数， $F_0(x)$ 是$f_0(x)$ 的累积分布函数。
+\begin{align}
+H_0 & : X_i \sim F_0(x), \textrm{with } F_0(0) = {1 \over 2} \nonumber \\
+H_1 & :X_i \sim F_0(x - \theta), \textrm{with } \theta > 0
+\end{align}
+$H_0$ 表示中位数等 于 零，$H_1$ 假设 表示中位数大于零。
+$u(X_i)$ 为 Bernoulli 型随机变量， 等于1的概率为 $ 1 - F_0(-\theta) $。
+由$X_i$ 是独立同分布，
+\begin{align*}
+\E_{\theta}[T_n] & = n(1 - F_0(-\theta))\\
+\Var[T^+] & = n F_0(-\theta)(1 - F_0(-\theta))
+\end{align*}
+则 $ e(T_n) = 4nf_0^2(0)$。
+对于线性检测的统计量 $T_n^* = \sum_{i=1}^n X_i$，在$H_1$假设下均值为 $\theta$, 设 在$H_0$假设下 方差为 $\sigma_x^2$，则 $e(T_n^*) = { n \over \sigma_x^2 } $。
+从而得到符号检测对线性检测的ARE：
+$$
+\mathrm{ARE}_{\mathrm{sign,linear}} = 4f_0^2(0)\sigma_x^2
+$$
+当 $ X_i $ 是高斯分布时 $ f_0 = {1 \over \sqrt{2\pi}\sigma_x} \Rightarrow \mathrm{ARE} = {2 \over \pi} \approx 0.64 $，线性检测效果更好；当 $X_i $ 是 Laplace 分布时，$ f_0(x) = (\lambda/2) e^{-\lambda \abs{x}} \Rightarrow f_0(0) = \lambda/2, \sigma_x^2 = 2/\lambda^2 \Rightarrow \mathrm{ARE} = 2$，符号检测效果更好。
+
+当高斯分布的方差未知时，用 Student's t-test 检验统计量代替 线性检测， 
+即 $S_n^* = { \sqrt{n} \bar{x}_n \over S_n} $ 服从 $n-1$个参数的 t 分布。
+其中 $\bar{x}_n $ 和 $S_n$ 分别为样本均值和样本方差。
+
+下面我们计算 Wilcoxon 检测的效验，首先可以将 $T^+ $ 写成下面的形式（设 $M_0 = 0$ ）：
+\begin{equation}
+    T^+  = \sum_{ i = 1 }^n \sum_{ j = 1}^i u(X_i + X_j)
+\end{equation}
+仍假设$f_0(x)$的对称性，
+$ \E[u(X_i)] = 1 - F_0(-\theta) = F_0(\theta) $
+且
+\begin{align*}
+\E[u(X_i + X_j) ] & = P(X_i + X_j > 0) \\
+& = 1 - \int_{ -\infty }^{ +\infty} f_0(\sigma - \theta) F_0( - \sigma - \theta ) d\sigma
+\end{align*}
+于是有：
+\begin{align}
+ \diffp{\E[T^+]}{\theta}\Big\vert_{\theta = \theta_0} = n f_0(\theta) + n(n-1) I
+\end{align}
+其中$ I = \int_{-\infty}^{\infty} f_0^2(\sigma) d\sigma $
+利用~\eqref{eq:VarT}式的结果，得到$e(T^+) = 12n I^2$。
+Wilcoxon 检验相对于t检验（等价于线性检测器）
+$$
+\mathrm{ARE}_{\mathrm{Wilcoxon,t}} = 12\sigma_x^2 I^2
+$$
+\section{双输入系统}
+考虑将信号输入两个独立信道，得到的输出分别为 $X_i$ 和 $Y_i$， 现根据 $W =
+((X_1, Y_1), (X_2, Y_2), \dots, (X_n, Y_n)) $ 检测是否有信号通过信道。
+\begin{itemize}
+\item $H_0$ 假设 为 $X$和 $Y$ 彼此独立，零均值， 方差固定， 
+$\E[X_1^2] = \sigma_1^2, \E[X_2^2] = \sigma_2^2$。
+\item $H_1$ 假设 为有信号$S = (S_1, S_2, \dots, S_n) $通过， 信号零均值，方差为 $\sigma_3^2$，
+两信道的噪声分量与 $H_0$中相同，与$S$独立。
+\end{itemize}
+假设是高斯加性噪声， 且 $\sigma_1 = \sigma_2 = \sigma $，那么假设检验问题变成
+\begin{itemize}
+\item $H_0$ ： $(X_i, Y_i) $ 是联合高斯的， $ \rho = 0, \sigma_x = \sigma_y = \sigma $
+\item $H_1$ ： $(X_i, Y_i) $ 是联合高斯的， $ \rho > 0, \sigma_x^2 = \sigma_y^2 = \frac{\sigma^2}{1 - \rho} $
+\end{itemize}
+通过似然比检验可以得到：
+\begin{equation}
+\sum_{i=1}^n (x_i + y_i)^2 \mathop{\gtreqless}_{H_0}^{H_1} t
+\end{equation}
+若通过非参数估计的形式，记 $$
+u(x_i, y_i) = \begin{cases} 1 & \textrm{当 $x_i, y_i$ 同号时 } \\
+0 & \textrm{当 $x_i, y_i$ 异号时 }
+\end{cases}
+$$
+在 $H_0$ 假设下 $u(x_i, y_i) \sim Bern({ 1\over 2})$， 在 $H_1 $ 假设下 $ u(x_i, y_i) \sim Bern(p)$， 其中 $p = \Pr(X>0, Y>0)  + \Pr(X<0, Y<0) $
+且  $ p > {1 \over 2} $。
+符号检测的统计量为：
+$$
+ \sum_{i = 1}^n u(x_i, y_i) \mathop{\gtreqless}_{H_0}^{H_1} t
+$$
+\section{局部最优检测}
+在弱信号检测中，
+\begin{align}
+H_0 & : \theta = \theta_0 \\
+H_1 & : \theta > \theta_0,  \theta\textrm{与$\theta_0$很接近}
+\end{align}
+关于上述假设检验问题，对于任意的检测 $T_n$，其虚警概率为 $\alpha_n$，漏警概率为 $\beta_n$，
+$n$表示样本数。 若$T_n^*$ 与 $T_n$ 有相同的虚警概率 $\alpha_n$， 其漏警概率$\beta^*_n$满足
+\begin{equation}\label{eq:beta_theta}
+\diffp{\beta_n^*(\theta)}{\theta}\Big\vert_{\theta = \theta_0} \leq \diffp{\beta_n(\theta)}{\theta}\Big\vert_{\theta = \theta_0}
+\end{equation}
+漏警概率$\beta_n$ 与检测概率 $ \phi_n$ （或功效函数）有如下的关系：
+\begin{equation}
+ \beta_n(\theta ) = 1 - \phi_n(\theta)
+\end{equation}
+因此~\eqref{eq:beta_theta} 等价于 
+$$
+\diffp{\phi_n^*(\theta)}{\theta}\Big\vert_{\theta = \theta_0} \geq \diffp{\phi_n(\theta)}{\theta}\Big\vert_{\theta = \theta_0}
+$$
+设 $I$ 表示拒绝域，$I^*$ 是 $I$ 在观测空间 的补集。
+则
+\begin{align}
+\alpha_n & = \int_I \dots \int \prod_{i=1}^n f(x_i; \theta_0) dx \\
+\label{eq:phi_n}\phi_n(\theta) & = \int_I \dots \int \prod_{i=1}^n f(x_i; \theta) dx
+\end{align}
+在一定的正则化条件下，\eqref{eq:phi_n} 化为
+\begin{equation}\label{eq:phi_theta}
+\diffp{\phi_n(\theta)}{\theta} = \int_I \dots \int \diffp{}{\theta} \prod_{i=1}^n f(x_i; \theta) dx
+\end{equation}
+问题化为在 $\alpha_n$ 一定的情况下，极大化~\eqref{eq:phi_theta} 式。
+考虑到
+$$
+{1 \over \prod_{i=1}^n f(x_i; \theta_0)}\diffp{\phi_n(\theta)}{\theta} = \sum_{i=1}^n \diffp{\ln f(x_i; \theta)}{\theta}\Big\vert_{\theta = \theta_0}
+$$
+由NP引理可以进一步得到我们的判别准则为
+\begin{equation}
+\sum_{i=1}^n \diffp{\ln f(x_i; \theta)}{\theta}\Big\vert_{\theta = \theta_0} \mathop{\gtrless}_{H_0}^{H_1}
+c
+\end{equation}
+$c$ 的选取使得虚警概率为 $\alpha$。
+\section{鲁棒检测}
+设 $ (X_1, X_2, \dots, X_n) $ 是 独立同分布的随机变量，有相同的分布$p$。问题是检验 $ p = p_0 $ 还是 $ p = p_1 $。
+$$
+ p_i = \{ q | q = (1-\epsilon_i) f_i + \epsilon_i H_i , H_i \in H \}, i = 0,1
+$$
+$f_i$ 被称作名义分布。记$ R(q'_i, \phi(x)) $ 为在检测 $\phi(x)$ 下的平均风险，其中 $ q'_i $ 是真实的分布。
+极大极小问题：
+\begin{equation}\label{eq:minmax}
+\min_{\phi} \sup_{q'_1} R(q'_1, \phi) \textrm{ subject to } \sup_{q'_0} R(q'_0, \phi) \leq \alpha  
+\end{equation}
+可以用最不利分布求解。设$ q_i$ 为最不利分布，即对于任意的 $\phi(\cdot)$ 下式成立
+$$
+R(q'_i, \phi) \leq R(q_i, \phi)
+$$
+于是~\eqref{eq:minmax} 式可以化为
+$$
+\min_{\phi} R(q_1, \phi) \textrm{ subject to } R(q_0, \phi) \leq \alpha
+$$
+当取 $R$ 为错误概率时上式即为 N-P 检验。
+
+可以求出最不利分布具有如下形式：
+\begin{equation}\label{eq:least_favorable_distribution}
+q_0(x) = \begin{cases}
+(1 - \epsilon_0) f_0(x) & { f_1(x) \over f_0(x) } < c_0 \\
+{1 \over c_0 } (1 - \epsilon_0) f_1(x) & { f_1(x) \over f_0(x) } \geq c_0
+\end{cases}
+q_1(x) = \begin{cases}
+(1 - \epsilon_1) f_1(x) & { f_1(x) \over f_0(x) } > c_1 \\
+c_1 (1 - \epsilon_1) f_0(x) & { f_1(x) \over f_0(x) } \leq c_1
+\end{cases}
+\end{equation}
+其中 $ 0 \leq c_1 < c_0 < \infty $，根据$ q_0, q_1 $ 是概率密度函数可确定 $ c_0, c_1 $ 的大小：
+\begin{align}\label{eq:c1c0}
+(1-\epsilon_0) \left\{ \Pr({f_1 \over f_0 } < c_0 | f_0)  + { 1 \over c_0} \Pr({f_1 \over f_0} \geq c_0 | f_1) \right\} & = 1 \\
+(1-\epsilon_1) \left\{ \Pr({f_1 \over f_0 } > c_1 | f_1)  + c_1 \Pr({f_1 \over f_0} \leq c_1 | f_0) \right\} & = 1\nonumber
+\end{align}
+根据~\eqref{eq:least_favorable_distribution}式可以得到：
+\begin{equation}\label{eq:q1q0_ratio}
+{ q_1(x) \over q_0(x) } = \begin{cases}
+bc_1 & {f_1(x) \over f_0(x) }\leq c_1 \\
+b{f_1(x) \over f_0(x) } & c_1 < {f_1(x) \over f_0(x) } < c_0 \\
+b c_0 &  {f_1(x) \over f_0(x) } \geq c_0 
+\end{cases}
+\end{equation}
+其中 $ b = { 1 - \epsilon_1 \over 1 - \epsilon_0 } $。
+\begin{example}
+考虑Huber 模型的特殊情形，$ \epsilon_0 = \epsilon_1 = \epsilon $, $f_0$ 是标准正态分布， $f_1(x) = f_0( x - \theta),
+\theta > 0 $。 这对应着信道 $ z = \theta + n $ 有常信号$\theta$ 时观测的分布。 这里 $ b = 1 $，求该Huber 模型的鲁棒检测。
+\begin{solution}
+根据~\eqref{eq:c1c0}
+ $ c_1, c_0$ 满足：
+ \begin{align}\label{eq:c1G}
+ \Phi({\ln c_0 \over \theta} + { \theta \over 2}) + {1 \over c_0} \left[ 1 - \Phi({\ln c_0 \over \theta} - { \theta \over 2})\right] & =
+ {1 \over 1 - \epsilon} \\
+ 1 - \Phi({\ln c_1 \over \theta} - { \theta \over 2}) + c_1 \Phi({\ln c_1 \over \theta} + { \theta \over 2}) & =
+ {1 \over 1 - \epsilon} \nonumber
+\end{align}
+由~\eqref{eq:q1q0_ratio}式可得似然比为：
+$$
+{ q_1(x) \over q_0(x) } = \begin{cases}
+c_1 &  x \leq {\ln c_1 \over \theta} + { \theta \over 2} \\
+\exp(\theta x - {\theta^2 \over 2})& {\ln c_1 \over \theta} + { \theta \over 2} < x < {\ln c_0 \over \theta} + { \theta \over 2} \\
+ c_0 &  x \geq {\ln c_0 \over \theta} + { \theta \over 2}
+ \end{cases}
+$$
+为保证 $ p_1 $ 和  $ p_0 $ 两类的概率密度簇没有重叠，要求 $ q_1 \neq q_0$ 即 $ c_1 \neq 1 $。在~\eqref{eq:c1G} 中令
+$ c_1 = 1$得到 $ \theta $ 的临界值 $ \theta_{\epsilon} (\theta > \theta_{\epsilon})$ 满足 $ 2 \Phi({ \theta_{\epsilon} \over 2 }) = { 1 \over 1 - \epsilon} $。
+\end{solution}
+\end{example}
+\section{鲁棒估计}
+ $X_1, X_2, \dots, X_n $ 是 独立同分布的随机变量，密度为 $ f(x - \theta) $。
+ 假设 $ f \in F $， 其中 $ F = \{ f | f = (1-\epsilon) \phi + \epsilon h, h \in H \} $，其中 $ \phi $ 是标准正态分布，$ H$ 是对称有界
+ 的概率密度函数族。对给定的损失函数$ L $， 统计量 $ \hat{\theta}(\bm{x}) $ 是一致估计量：
+ \begin{equation}
+ \hat{\theta}(\bm{x}) = \arg \min_{\theta} \sum_{i=1}^n L(x_i - \theta)
+ \end{equation}
+$ \hat{\theta}(\bm{x}) $ 可由 
+\begin{equation}\label{eq:thetaSolve}
+\sum_{i=1}^n l(x - \hat{\theta}(\bm{x})) = 0
+\end{equation}
+解出，
+其中 $  l = \frac{d L(x)}{dx} $。且有 $ \sqrt{n} ( \hat{\theta}(\bm{x} )- \theta ) $ 渐近分布是零均值，方差为 $V(l,f)$，其中
+ \begin{equation}\label{eq:Vlf}
+V(l, f) = \frac{ \int l^2(x) f(x) dx }{\left[ \int l'(x)f(x) dx\right]^2}
+ \end{equation}
+  对给定的$f(x)$ 极小化~\eqref{eq:Vlf} 有：
+\begin{align*}
+  V(l, f) &= \frac{ \int l^2(x) f(x) dx }{\left[ \int l(x)f'(x) dx\right]^2} \\
+  & \geq \frac{ \int l^2(x) f(x) dx }{(\int (l \sqrt{f})^2 dx)(\int ({f' \over \sqrt{f}})^2 dx )} \\
+  & = \frac{1}{\int {f^{'2} \over f} dx }=: I(f)
+\end{align*}
+当 $l \sqrt{f} = \pm {f' \over \sqrt{f}} $ 时取等号，因为$-(\log f)' = l  = L'\geq 0$， 所以取负号，
+即 $ l(x) = -{1 \over f(x)}\frac{df(x)}{dx}$。
+当 $ f = \phi $ 时可求出$ l(x) = x$，对应的估值是$x_i$的平均。 将$l(x)=x$ 代入~\eqref{eq:Vlf} 式中得到：
+\begin{align*}
+V(l, f) & = \int_{-\infty}^{\infty} x^2 f(x) dx \\
+& = (1-\epsilon) + \epsilon \int_{-\infty}^{\infty} x^2 h(x) dx
+\end{align*}
+由于$h$的任意性渐近方差可以任意的大，因此样本均值对于$\epsilon$污染模型并不是鲁棒估计器。
+对于样本中位数估计器， $ L(x) = \abs{x}, l(x) = \sgn(x)$， 从而推出
+$$
+V(l, f) = {1 \over 4f^2(0) } \leq {1 \over 4(1-\epsilon)^2 \phi^2(0)} = { \pi \over 2(1-\epsilon)^2 }
+$$
+尽管样本中位数估计器比样本均值估计器更鲁棒，但当$\epsilon = 0 $即$ f$ 取名义密度$\phi$ 时，
+样本均值估计的方差只有中位数估计的0.64。因此需要既对$f$取名义概率时渐近方差小且鲁棒性能好的估计器，可以从下面的极大极小问题中得到：
+$$
+\min_l \max_{f\in F} V(l, f)
+$$
+可以求出 $ l(x) = \begin{cases} x & \abs{x} < a \\
+a \sgn(x) & \abs{x} \geq a \end{cases}$。因此 $l(x)$ 是软限幅器，可由~\eqref{eq:thetaSolve} 解出。
+%\begin{thebibliography}{9}
+%\bibitem{sign_test} https://onlinecourses.science.psu.edu/stat414/node/318/
+%\end{thebibliography}
+\end{document}
+
+

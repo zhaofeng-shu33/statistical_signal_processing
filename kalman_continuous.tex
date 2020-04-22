@@ -1,0 +1,140 @@
+\documentclass{ctexart}
+\ctexset{
+proofname = \heiti{证明}
+}
+\usepackage{amsmath,amsthm,amsfonts,amssymb}
+\usepackage{enumitem}
+\usepackage{esdiff}
+\usepackage{pifont}
+
+\newtheorem{definition}{定义}
+\newtheorem{thm}{定理}
+\newtheorem{pro}{命题}
+\newtheorem{cor}{推论}
+\newtheorem{example}{例}
+\newtheorem*{solution}{解}
+\def\P{\textbf{P}}
+\def\E{\mathbb{E}}
+\def\R{\mathbb{R}}
+\def\Z{\mathcal{Z}}
+\def\Var{\textrm{Var}}
+\def\Cov{\textrm{Cov}}
+\usepackage{mathtools}
+\DeclareMathOperator*\argmin{\arg\!\min}
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\usepackage{bm}
+\begin{document}
+\title{连续时间 Kalman 滤波}
+\author{赵丰}
+\maketitle
+连续时变系统模型：
+
+连续的状态方程---
+\begin{equation}\label{eq:state}
+\dot X(t) = A(t) X(t) + B(t) U(t)
+\end{equation}
+
+连续的观测方程---
+\begin{equation}\label{eq:observation}
+Z(t) = H(t) X(t) + V(t)
+\end{equation}
+
+$ \E[U(t)] = 0, \E[U(t) U^T(\tau)] = Q(t) \delta(t-\tau)$
+
+$ \E[V(t)] = 0, \E[V(t) V^T(\tau)] = R(t) \delta_{t-\tau}, \E[U(t) V^T(\tau)] = 0$
+
+已知初始状态 $X(t_0)$ 均值为 $\E[X(t_0)] = \mu_X(t_0)$， 方差为 $\Var(X(t_0)) = P(t_0)$， 与 $U(t), V(t)$ 均不相关。
+
+由~\eqref{eq:state} 式解得
+$$
+X(t) = \Phi(t, t_0) X(t_0) + \int_{t_0}^t \Phi(t, \tau) B(\tau) U(\tau) d\tau
+$$
+其中 $\Phi(t, t_0) = \exp( \int_{t_0}^{t} A(\tau) d\tau)$.
+
+先将连续系统化为离散系统， $ t = k \Delta t, t_0 = (k-1)\Delta t, 
+X_k = X(k\Delta t), X_{k-1} = X((k-1)\Delta t), \Phi_{k, k-1} = \Phi(k \Delta t, (k-1) \Delta t) $，
+则有
+$$
+X_k = \Phi_{k, k-1} X_{k-1} + 
+W_{k-1}
+$$
+其中 
+\begin{align*}
+W_{k-1} & = \int_{(k-1) \Delta t}^{k \Delta t} \Phi(k\Delta t, \tau) B(\tau) U(\tau) d\tau \\
+& \approx \Phi(k\Delta t, (k-1)\Delta t) B((k-1)\Delta t) \int_{(k-1)\Delta t}^{k \Delta t} U(\tau) d\tau
+\end{align*}
+$\E[W_k] = 0,$
+并可以求出 
+$ \E[W_k W_i^T] = Q_k \delta_{ki}, $
+\begin{equation}\label{eq:Q_k}
+Q_k = \Phi(t+\Delta t, t) B(t) Q(t) B^T(t) \Phi^T(t+\Delta t, t)\Delta t
+\end{equation}
+
+对~\eqref{eq:observation} 式两边在$(t, t+\Delta t)$区间积分再除以 $\Delta t$, 令 $Z_k = z(t), H(k) = H(t), X_k = X(t)$，
+则 
+$$
+Z_k = H_k X_k + V_k
+$$
+其中 $V_k = {1 \over \Delta t} \int_{k\Delta t}^{(k+1) \Delta t} V(\tau) d\tau $, 且 $\E[V_k] = 0 $
+并可以求出
+$ \E[V_k V_i^T] = R_k \delta_{ki}, R_k = { R(t) \over \Delta t} $
+
+写出相应的离散 Kalman 滤波递推公式为
+\begin{equation}\label{eq:discrete_update}
+\hat{X}( t + \Delta t) = \Phi(t+\Delta t, t) \hat{X}(t) + K(t+\Delta t) [ Z(t+\Delta t) - H(t+ \Delta t) \Phi(t+\Delta t, t) \hat{X}(t)]
+\end{equation}
+因为 $\Phi(t+\Delta t, t) = \exp(A \Delta t) = 1 + A(t) \Delta t + O( (\Delta t)^2)$
+\begin{align*}
+\diff{\hat{X}(t)}{t} & = \lim_{\Delta t \to 0} \frac{ \hat{X}(t + \Delta t) - \hat{X}(t) }{\Delta t} \\
+& = \lim_{\Delta t \to 0} \frac{1}{\Delta t} [\Phi(t + \Delta t, t) - 1] \hat{X}(t)  \\
+& + \lim_{\Delta t \to 0} \frac{1}{\Delta t} K(t+\Delta t) [ Z(t+\Delta t) - H(t + \Delta t) \Phi(t+\Delta t, t) \hat{X}(t)] \\
+& = A(t)\hat{X}(t) + \lim_{\Delta t \to 0} \frac{ K(t + \Delta t)}{\Delta t} [ Z(t) - H(t) \hat{X}(t) ]
+\end{align*}
+由相应的离散 Kalman 滤波增益矩阵公式：
+\begin{equation}\label{eq:discrete_gain_matrix}
+K( t + \Delta t) = P(t+\Delta t) H^T(t+\Delta t) R^{-1}( t + \Delta t) \Delta t
+\end{equation}
+设 $ K(t) = \lim_{\Delta t \to 0} \frac{K(t+\Delta t)}{\Delta t} $, 则我们得到连续情形下的滤波增益方程：
+\begin{equation}\label{eq:continuous_gain_matrix}
+K(t)  = P(t) H^T(t) R^{-1}(t)
+\end{equation}
+以及连续情形下的状态估计方程：
+\begin{equation}\label{eq:continous_state}
+\diff{\hat{X}(t)}{t} = A(t) \hat{X}(t) + K(t) [ Z(t) - H(t) \hat{X}(t) ] 
+\end{equation}
+由相应的离散 Kalman 滤波误差矩阵的递推公式：
+\begin{align*}
+P(t+\Delta t) & = [I - K(t+\Delta t) H(t+ \Delta t) ] (\Phi(t+\Delta t, t) P(t) \Phi^T(t + \Delta t, t) + Q_k) \\
+& = [I - K(t+\Delta t) H(t+ \Delta t) ] (P(t) + A(t)P(t)\Delta t + P(t)A^T(t) \Delta t + Q_k +O( (\Delta t)^2)) \\
+\end{align*}
+因为 $K(t+\Delta t) = O(\Delta t)$
+我们进一步有
+$$
+P(t+\Delta t) =  P(t) + A(t)P(t)\Delta t + P(t)A^T(t) \Delta t + Q_k - K(t+\Delta t) H(t + \Delta t) P(t) + O( (\Delta t)^2)) 
+$$
+由~\eqref{eq:Q_k}式可得
+$ \lim_{\Delta t \to 0} \frac{Q_k}{\Delta t} = B(t)Q(t)B^T(t) $
+因此，结合~\eqref{eq:discrete_gain_matrix}式
+\begin{align}
+\diff{P(t)}{t} & = \lim_{\Delta t \to 0} \frac{P(t + \Delta t) - P(t)} {\Delta t} \\
+\label{eq:Ricatti} & = A(t)P(t) +P(t)A^T(t) + B(t)Q(t)B^T(t) -  P(t)H(t)^T R^{-1}(t) H(t)P(t)
+\end{align}
+~\eqref{eq:Ricatti} 式为误差方差方程，也称为 Ricatti 方程。
+
+我们用连续时间 Kalman 滤波针对加性噪声信道设计滤波器。
+设 $ z(t) = s(t) + n(t)$。 信号的 PSD 为 $ \Phi_s(s) = { 2 \over 1-s^2}$, 设噪声为高斯白噪声， $\Phi_n(s) = 1 $。 则我们可以得到形成滤波器为
+$ H(s) = { \sqrt{2} \over s+1}$ 因此状态 方程可写为 
+$$ 
+\dot s(t) = -s(t) + \sqrt{2} u(t) 
+$$
+观测方程为仍为$ z(t) = s(t) + n(t)$
+由 ~\eqref{eq:continuous_gain_matrix} 可得到 $ K(t) = P(t)$。我们寻找稳态解，令~\eqref{eq:Ricatti}中$\dot P(t) = 0$， 舍去负根得 $ P = \sqrt{3} - 1 $。 所以
+由~\eqref{eq:continous_state}可得：
+$$
+\diff{\hat{x}(t)}{t} + \sqrt{3} \hat{x}(t) = (\sqrt{3} - 1) z(t)
+$$
+滤波器传递函数为  $H(s) = { \sqrt{3} - 1 \over \sqrt{3} + s } $， 与物理可实现的 Wiener 滤波器相同。
+\end{document}
+
+
+
