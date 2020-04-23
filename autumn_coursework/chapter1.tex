@@ -1,0 +1,162 @@
+\documentclass{article}
+\usepackage{xeCJK}
+\usepackage{amsmath,esint,amssymb}
+\usepackage{hyperref}
+\usepackage{bm}
+\DeclareMathOperator{\DTFT}{DTFT}
+\begin{document}
+\title{第一章作业}
+\author{赵丰，2017310711}
+\maketitle
+\textbf{P8}
+\begin{align}
+y(n)=&A^2\cos^2(\omega n+\varphi)\\
+=&\frac{A^2}{2}\left(1+\cos(2\omega n+2\varphi)\right)
+\end{align}
+\begin{align}
+r_y(n_1,n_2)=&E\left(y(n_1)y(n_2)\right)\\
+=&\frac{A^4}{4}E\left((1+\cos(2\omega n_1+2\varphi))(1+\cos(2\omega n_2+2\varphi))\right)\\
+=&\frac{A^4}{4}(1+E(\cos(2\omega n_1+2\varphi)\cos(2\omega n_2+2\varphi)))\\
+=&\frac{A^4}{4}(1+\frac{1}{2}E(\cos(2\omega n_1+2\omega n_2+4\varphi)+\cos(2\omega n_1-2\omega n_2)))\\
+=&\frac{A^4}{4}(1+\frac{1}{2}\cos(2\omega n_1-2\omega n_2))
+\end{align}
+输出信号的自相关函数只与时间差有关，因此$y$是宽平稳的。
+\begin{align}
+r_{xy}(n_1,n_2)=&E\left(x(n_1)y(n_2)\right)\\
+=&\frac{A^3}{2}E\left(\cos(\omega n_1+\varphi)(1+\cos(2\omega n_2+2\varphi))\right)\\
+=&\frac{A^3}{2}E\left(\cos(\omega n_1+\varphi)\cos(2\omega n_2+2\varphi)\right)\\
+=&0
+\end{align}
+因此$x,y$是联合宽平稳的（互相关函数仅为时间差的函数）。
+
+\textbf{P12}
+%r_x(k)=(-0.8)^{|k|}
+首先计算输入信号的PSD
+\begin{align}
+\tilde{S}_x(z)=&\sum_{k=-\infty}^{-1} r_x(k)z^{-k}+\sum_{k=0}^{+\infty} r_x(k)z^{-k}\\
+=&\sum_{k=-\infty}^{-1} (-0.8z)^{-k}+\sum_{k=0}^{+\infty} (\frac{-0.8}{z})^{k}\\
+=&\frac{-0.8z}{1+0.8z}+\frac{1}{1+\frac{0.8}{z}},\text{满足}|0.8z|<1 \text{且} |\frac{-0.8}{z}|<1\\
+=&\frac{0.45z}{(z+0.8)(z+1.25)},0.8<|z|<1.25
+\end{align}
+%Z-变换的ROC包含单位圆周，因此取$z=e^{j\omega}$得到输入信号的PSD为:
+%\begin{equation}
+%S_x(\omega)=\tilde{S}_x(e^{j\omega})=\frac{9}{41+40\cos\omega}
+%\end{equation}
+由输入输出的复功率谱密度的关系得:
+\begin{align}
+\tilde{S}_y(z)=&H(z)H^*(\frac{1}{z^*})S_x(z)\\
+=&\frac{1-\frac{1}{2z}}{1-\frac{3}{4z}}\frac{1-\frac{z}{2}}{1-\frac{3z}{4}}\frac{0.45z}{(z+0.8)(z+1.25)}\\
+=&\frac{36z(2-5z+2z^2)}{(4z+5)(5z+4)(12-25z+12z^2)}
+\end{align}
+取$z=e^{j\omega}$得到输出信号的PSD为:
+\begin{equation}
+S_y(\omega)=\tilde{S}_y(e^{j\omega})=\frac{36(5-4\cos\omega)}{545+16\cos\omega-480\cos2\omega}
+\end{equation}
+对$\tilde{S}_y(z)$做部分分式分解得:
+\begin{equation}
+\tilde{S}_y(z)=\frac{45}{868 (4z^{-1}/3-1)}+\frac{91}{124 (1+4z^{-1}/5)}+\frac{91}{124 (-5 z^{-1}/4-1)}+\frac{45}{868 (1-3 z^{-1}/4)}
+\end{equation}
+因为$\tilde{S}_y(z)$的收敛域包含单位圆，所以$\frac{4}{5}<|z|<\frac{5}{4}$,
+对$\tilde{S}_y(z)$求逆变换得
+\begin{align}
+r_y(k)=&\mathcal{Z}^{-1}\{\tilde{S}_y(z)\}\\
+=&\frac{45}{868}((\frac{4}{3})^ku(-k-1)+(\frac{3}{4})^ku(k))+\frac{91}{124}((\frac{-5}{4})^ku(-k-1)+(\frac{-4}{5})^ku(k))\\
+=&\frac{45}{868}(\frac{4}{3})^{|k|}+\frac{91}{124}(\frac{-4}{5})^{|k|}
+\end{align}
+
+\textbf{P13}
+将$\cos\omega=\frac{z+z^{-1}}{2}$代入，求解:
+\begin{equation}
+\frac{5-2(z+z^{-1})}{10-3(z+z^{-1})}=H(z)H(z^{-1})
+\end{equation}
+等式左端可分解成:
+\begin{equation}
+\frac{5-2(z+z^{-1})}{10-3(z+z^{-1})}=\frac{(z-2)}{(z-3)}\frac{(z^{-1}-2)}{(z^{-1}-3)}
+\end{equation}
+所以产生该信号的线性系统的传输函数可能为：
+\begin{equation}
+H(z)=\frac{z-2}{z-3}\, \text{ 或 } \,H(z)=\frac{z^{-1}-2}{z^{-1}-3}
+\end{equation}
+前一个不是最小相位系统（零极点在单位圆外），舍去。
+一般的，系统可以等价于上述最小相位系统与一个全通系统的级联，即系统传输函数为：
+\begin{equation}
+H(z)=\frac{z^{-1}-2}{z^{-1}-3}H_{ap}(z)
+\end{equation}
+
+\textbf{P14(1)} AR模型，$p=2$
+
+\textbf{P14(2)} 系统传递函数为
+\begin{equation}
+H(z)=\frac{1}{1+a^*(1)z^{-1}+a^*(2)z^{-2}}
+\end{equation}
+由给定的两个极点可求出$a(1)=-2\rho\cos\phi,a(2)=\rho^2$ 
+
+\textbf{P14(3)}
+\begin{align}
+S_x(\omega)=&|H(e^{j\omega})|^2\\
+=&\frac{1}{1+\rho^4+4\rho^2\cos^2\phi-4\rho^3 \cos\phi\cos\omega-4\rho\cos\phi\cos\omega+2\rho^2\cos 2\omega}
+\end{align}
+写出前2阶增广的Yule Walker 方程为：
+\begin{equation}
+\begin{bmatrix}
+r(0) & r(1) & r(2)\\
+r(1) & r(0) & r(1) \\
+r(2) & r(1) & r(0)
+\end{bmatrix}
+\begin{bmatrix}
+1 \\ a(1) \\ a(2)
+\end{bmatrix}=\begin{bmatrix}
+1 \\ 0 \\ 0
+\end{bmatrix}
+\end{equation}
+设 $m=4 \rho ^3 \cos ^2\phi-\rho ^3-4 \rho ^2  \cos ^2\phi -\rho ^2+\rho +1$,
+则有
+\begin{equation}
+\begin{bmatrix}
+r(0)\\r(1)\\r(2)
+\end{bmatrix}=
+\begin{bmatrix}
+\frac{\rho+1}{m}\\ \frac{2\rho\cos\phi}{m} \\ \frac{4 \rho ^2\cos^2\phi  -\rho ^2-\rho}{m}
+\end{bmatrix}
+\end{equation}
+
+\textbf{P18}
+已知
+\begin{equation}\label{eq:1}
+y(n)=x(n)+w(n), w(n) \text{ 是方差为 }\, \sigma_w^2 \text{ 的白噪声}
+\end{equation}
+则
+\begin{equation}
+r_y(k)=r_x(k)+\sigma_w^2\delta(k)
+\end{equation}
+所以$r_y(1)=r_x(1),r_y(0)=r_x(0)+\sigma_w^2$
+真实的
+$a(1)=-\frac{r_x(1)}{r_x(0)}$,所以
+\begin{equation}
+\frac{\hat{a}(1)}{a(1)}=\frac{r_x(0)}{r_x(0)+\sigma_w^2}=\frac{\eta}{\eta+1}
+\end{equation}
+
+\textbf{P19}
+沿用\eqref{eq:1}式，并设
+\begin{equation}
+x(n)+a_1x(n-1)=v(n)
+\end{equation}
+则有
+\begin{equation}
+y(n)+a_1y(n-1)=v(n)+w(n)+a_1w(n-1)
+\end{equation}
+令
+\begin{equation}
+v(n)+w(n)+a_1w(n-1)=\eta(n)+b(1)\eta(n-1),\eta(n)\text{ 为高斯白噪声}
+\end{equation}
+对上式两边求自相关函数得
+\begin{equation}
+(\sigma^2+(1+a(1)^2)\sigma_w^2)\delta(k)+a(1)\sigma_w^2(\delta(k-1)+\delta(k+1))=(1+b(1)^2)\sigma_{\eta}^2\delta(k)+b(1)\sigma_{\eta}^2(\delta(k-1)+\delta(k+1))
+\end{equation}
+于是得到:
+\begin{align}
+(\sigma^2+(1+a(1)^2)\sigma_w^2)=&(1+b(1)^2)\sigma_{\eta}^2\\
+a(1)\sigma_w^2=&b(1)\sigma_{\eta}^2
+\end{align}
+上面两式相除即得证。
+\end{document}
