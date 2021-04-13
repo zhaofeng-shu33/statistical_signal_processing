@@ -297,7 +297,7 @@ MSE 估值准则为：$\min_{\bm{A},\bm{b}}\E[(\hat{\bm{\theta}}-\bm{\theta})^T(
 因此$\hat{\bm{\theta}}_{\textrm{LMS}}-\bm{\theta}$与$\bm{z}-\E[\bm{z}]$ 正交，已有$\hat{\bm{\theta}}_{\textrm{LMS}}=\bm{A}(\bm{z}-\E[\bm{z}])+\E[\bm{\theta}]$
 。由$\E[(\hat{\bm{\theta}}_{\textrm{LMS}}-\bm{\theta})(\bm{z}-\E[\bm{z}])^T]=\bm{0}$得$\bm{A}=\Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}]$
 因此
-\begin{equation}
+\begin{equation}\label{eq:lmse}
 \hat{\bm{\theta}}_{\textrm{LMS}}=\Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}](\bm{z}-\E[\bm{z}])+\E[\bm{\theta}]
 \end{equation}
 线性最小均方估值的误差矩阵为：
@@ -305,6 +305,17 @@ MSE 估值准则为：$\min_{\bm{A},\bm{b}}\E[(\hat{\bm{\theta}}-\bm{\theta})^T(
 \Var[\bm{\theta}_{\textrm{LMS}}-\bm{\theta}] & = \E[(\bm{\theta}_{\textrm{LMS}}-\bm{\theta})(\bm{\theta}_{\textrm{LMS}}-\bm{\theta})^T] \\
 & = \Var[\bm{\theta}] - \Cov[\bm{\theta},\bm{z}]\Var^{-1}[\bm{z}]\Cov[\bm{z},\bm{\theta}]
 \end{align*}
+
+假如信道是 $z = A \theta + n$，其中 $n$ 是每个分量
+方差为 $\sigma^2$ 的高斯噪声。则估计量 \eqref{eq:lmse}
+可进一步化简为：
+\begin{equation}
+    \hat{\bm{\theta}}_{\textrm{LMS}}=
+    \Var[\theta]A^T
+    (A \Var[\theta]A^T + \sigma^2 I)^{-1}
+    (\bm{z}-A \E[\bm{\theta}])+\E[\bm{\theta}]
+\end{equation}
+
 \item 最小二乘估值：仅有观测，无先验
 
 假定观测模型为：
