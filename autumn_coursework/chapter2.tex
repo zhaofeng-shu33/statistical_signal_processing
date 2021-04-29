@@ -1,0 +1,155 @@
+\documentclass{article}
+\usepackage{ctex}
+\ctexset{
+  proofname = \heiti{证明}
+}
+\usepackage{amsmath,esint,amssymb}
+\usepackage{hyperref}
+\usepackage{bm}
+\DeclareMathOperator*{\rgmax}{argmax}
+\usepackage[thehwcnt = 2]{iidef}
+\thecourseinstitute{清华大学}
+\thecoursename{现代信号处理}
+\theterm{2017年秋季学期}
+\hwname{作业}
+\slname{\heiti{解}}
+\begin{document}
+\courseheader
+\name{赵丰}
+\begin{enumerate}
+\item 最常用的随机信号均值估计器是 ：$\hat{\mu}_x = \frac{1}{N} \sum_{n=0}^{N-1} x(n)$。证明，如果$x(n)$ 不是白噪声，估计器的方差为
+
+\begin{equation}\label{eq:to_proof}
+\Var(\hat{\mu}_x)=\frac{1}{N}\sum_{l=-N}^N (1-\frac{|l|}{N})c_x(l)
+\end{equation}
+
+这里 $c_x(l)$ 是 $x(n)$ 的协方差函数。
+\begin{proof}
+设$y(i)=x(i)-\E[x(i)]$，则$y(i)$是零均值的
+随机变量, 且有$\Var(\hat{\mu}_x)=\Var(\hat{\mu}_y),c_x(l)=c_y(l)$，因此我们只需证明：
+\begin{equation}
+\Var(\hat{\mu}_y)=\frac{1}{N}\sum_{l=-N}^N (1-\frac{|l|}{N})c_y(l)
+\end{equation}
+由定义
+\begin{align}
+\Var(\hat{\mu}_y) =& E\{( \frac{1}{N} \sum_{n=0}^{N-1} y(n) )^2\} \\
+ =& \frac{1}{N^2} \sum_{m=0}^{N-1}\sum_{n=0}^{N-1} E(y(n)y(m)) \\
+ =& \frac{1}{N^2} \sum_{m=0}^{N-1}\sum_{n=0}^{N-1} c_y(n-m), \text{设$l=n-m$} \\
+ =& \frac{1}{N^2} \sum_{m=0}^{N-1}\sum_{l=-m}^{N-1-m} c_y(l) \label{eq:1A}
+\end{align}
+对于给定的$l$,讨论$m$所有可能取值的个数为满足如下两个不等式约束的所有整数：
+\begin{equation}
+\begin{cases}
+-l\leq m \leq &  N-1-l \\
+0 \leq m \leq & N-1 \\
+\end{cases}
+\end{equation}
+分$l$是否大于零讨论：若$l\geq 0$,则有$0\leq m \leq N-1-l$,共有$N-l$中取值;
+若$l<0$,则有$-l\leq m \leq N-1$,共有$N+l$种取值，综合来看对固定的$l$,$m$共有$N-|l|$种取值，
+又因为$-(N-1)\leq l \leq N-1$,所以我们把 式\eqref{eq:1A}交换求和次序先对$l$求和再对$m$求和
+可以得到
+\begin{equation}
+\Var(\hat{\mu}_y)= \frac{1}{N^2} \sum_{l=-(N-1)}^{N-1} (N-|l|)c_y(l)
+\end{equation}
+上式整理后即得式\eqref{eq:to_proof}。
+\end{proof}
+\item
+通过观察序列 $x(n) = s(n,\theta) + w(n), n= 0,1,\dots,N-1,w(n)\sim N(0,\sigma^2)$是高斯白噪声，$s(n,\theta)$ 是 $\theta$ 的函数并可导，证明 $\theta$ 的无偏估计器$\hat{\theta}$满足：
+\begin{equation}\label{eq:CRbound}
+\Var[\hat{\theta}] \geq \frac{\sigma^2}{\sum_{n=0}^{N-1} \left(\frac{\partial s(n,\theta)}{\partial \theta}\right)^2}
+\end{equation}
+\begin{proof}
+利用克拉美罗界的性质，只需求解参数$\theta$的Fisher 信息。
+由Fisher 信息的公式
+\begin{equation}
+I(\theta)=-E(\frac{\partial^2 \log(p(\bm{x},\theta))}{\partial \theta^2})
+\end{equation}
+首先求随机变量$X$的概率密度函数, 是均值为$s(n,\theta)$,方差为$\sigma^2$的高斯分布的概率密度函数的乘积，因此其
+对数似然函数为：
+\begin{equation}
+\log(p(\bm{x},\theta))=-\frac{N}{2}\log(2\pi \sigma^2)-\sum_{n=0}^{N-1} \frac{(x_n-s(n,\theta))^2}{2\sigma^2}
+\end{equation}
+因此
+\begin{align}
+I(\theta)= &\frac{1}{\sigma^2}\sum_{n=0}^{N-1}\E\left[ \biggl(s(n,\theta)-x_n\biggr)\frac{\partial^2 s(n,\theta)}{\partial \theta^2}+\left(\frac{\partial s(n,\theta)}{\partial \theta}\right)^2\right]\\
+=& \sum_{n=0}^{N-1}\frac{1}{\sigma^2}\left(\frac{\partial s(n,\theta)}{\partial \theta}\right)^2
+\end{align}
+最后我们得到
+\begin{align}
+\Var(\hat{\theta})\geq &\frac{1}{I(\theta)}\\
+=& \frac{\sigma^2}{\displaystyle\left(\frac{\partial s(n,\theta)}{\partial \theta}\right)^2}
+\end{align}
+\end{proof}
+\item
+设一组观测值$x(n) = A\cos(2\pi f_0 n + \varphi) + w(n),n=0,1,\dots,N-1,0<f_0 <{1\over 2}$，其中$w(n)\sim N(0,\sigma^2)$是高斯白噪声，$A$和$\varphi$已知，通过这组
+观测值估计确定量$f_0$，证明：估计值$\hat{f}_0$ 的 Cramer-Rao 下界是：
+\begin{equation}
+\Var[\hat{f}_0]\geq \frac{\sigma^2}{A^2\displaystyle\sum_{n=0}^{N-1} [2\pi n \sin(2\pi f_0 n + \varphi)]^2}
+\end{equation}
+\begin{proof}
+使用\eqref{eq:CRbound}式的结论，这里$\theta=f_0$,$s(\theta,n)=A\cos(2\pi \theta n+ \varphi)$,即可求出。
+\end{proof}
+\item
+设观测序列为 $x(n),n=0,1,\dots,N-1$，每个样本是独立同分布的，满足如下概率密度函数，
+$$
+p(x) = \begin{cases} 
+\frac{1}{\alpha^2}x\exp(-\frac{x^2}{2\alpha^2}) & x\geq 0 \\
+0 & x<0 \\
+\end{cases}
+$$
+设$\alpha>0$，求$\alpha$的MLE。
+\begin{solution}
+$x(1),\dots,x(N-1)$的
+对数似然函数为：
+\begin{equation}
+\log(p(\bm{x},\alpha))=-2N\log\alpha+\sum_{n=0}^{N-1}\left(\log x(i) - \frac{x(i)^2}{2\alpha^2}\right)
+\end{equation}
+令$\frac{\partial \log(p(\bm{x},\alpha))}{\partial \alpha}=0$，解得$\alpha$的MLE为
+\begin{equation}
+\hat{\alpha}=\sqrt{\frac{1}{2N}\displaystyle\sum_{n=0}^{N-1}x(i)^2}
+\end{equation}
+\end{solution}
+\item
+设观测样本为 $x(n),n=0,1,\dots,N-1$，每个样本是独立同分布的，且$x(n)$仅取1和0两个值，$\Pr(x(n)=1)=p$未知，通过观测样本求$p$的MLE。
+\begin{solution}
+$x(1),\dots,x(N-1)$的
+对数似然函数为：
+\begin{equation}
+\log(\Pr(\bm{x},p))=\sum_{n=0}^{N-1} \left(x(i)\log p + (1-x(i))\log(1-p) \right)
+\end{equation}
+令$\frac{\partial \log(\Pr(\bm{x},p))}{\partial p}=0$，解得$p$的MLE为
+\begin{equation}
+\hat{p}=\frac{1}{N}\sum_{n=0}^{N-1}x(i)
+\end{equation}
+\end{solution}
+\item
+设观测序列为 $x(n) = \theta + w(n),n=0,1,\dots,N-1.$其中$w(n)\sim N(0,\sigma_w^2)$是高斯白噪声，设$\theta$是一个随机参数，服从均匀分布，其概率密度函数为
+$$
+p(\theta) = \begin{cases}
+\frac{1}{\theta_2-\theta_1}  & \theta_1 \leq \theta \leq \theta_2 \\
+0 & \textrm{otherwise}\\
+\end{cases}
+$$
+求$\theta $的MAP估计器。
+\begin{solution}
+MAP Bayes估计器是下面极值问题的解：
+\begin{equation}
+\hat{\theta}=\rgmax_{\theta} \left(\log(p(x|\theta))+\log(p(\theta))\right)
+\end{equation}
+去掉无关的常数后有
+\begin{equation}
+\log(p(x|\theta))+\log(p(\theta))=\log p(\theta)-\sum_{n=0}^{N-1} \frac{(x(n)-\theta)^2}{2\sigma_w^2}
+\end{equation}
+因为$\theta>\theta_2$或$\theta<\theta_1$时函数为$-\infty$，故只需考虑 $\hat{\theta}\in [\theta_1,\theta_2]$
+设$\bar{x}=\frac{1}{N}\displaystyle\sum_{n=0}^{N-1} x(n)$
+解得MAP估计器为
+\begin{equation}
+\hat{\theta}=\begin{cases}
+\theta_1,& \bar{x} <\theta_1\\
+\bar{x},& \theta_1\leq \bar{x}\leq \theta_2\\
+\theta_2,& \bar{x} >\theta_2\\
+\end{cases}
+\end{equation}
+\end{solution}
+\end{enumerate}
+\end{document}

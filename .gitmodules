@@ -1,0 +1,6 @@
+[submodule "signal_processing_experiment"]
+	path = signal_processing_experiment
+	url = https://github.com/zhaofeng-shu33/signal_processing_experiment.git
+[submodule "signal_estimation_simulation"]
+	path = signal_estimation_simulation
+	url = https://github.com/zhaofeng-shu33/signal_estimation_simulation.git
