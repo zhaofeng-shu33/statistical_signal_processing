@@ -4,6 +4,7 @@
 \usepackage{enumitem}
 \usepackage{mathrsfs}
 \usepackage{subcaption}
+\usepackage{graphicx}
 \usepackage{amsmath,amsthm,amsfonts,amssymb}
 \DeclareMathOperator{\sinc}{sinc}
 \DeclareMathOperator{\rect}{rect}
@@ -55,8 +56,8 @@ P_F=\int_{z\in Z_1}p(z|H_0)dz=\alpha
 考虑高斯带限白噪声，即
 \begin{equation}
 S_N(f)=\begin{cases}
-0 & \textrm{if} |f|>B\\
-\frac{N_0}{2} & \textrm{if} |f|<B
+0 & \textrm{if } |f|>B\\
+\frac{N_0}{2} & \textrm{if } |f|<B
 \end{cases}
 \end{equation}
 可以证明$S_N(f)$对应的相关函数是$R_N(\tau)=\frac{N_0\sin(2B\pi \tau)}{2\pi \tau}$
